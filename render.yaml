@@ -41,7 +41,7 @@ services:
   - type: web
     name: lex-studio
     runtime: static
-    buildCommand: npm install && npm run build
+    buildCommand: npm install && npx vite build
     staticPublishPath: ./dist
     headers:
       - path: /*
