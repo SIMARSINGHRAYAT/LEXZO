@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* VS Code-style scrollbars */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(121, 121, 121, 0.4);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(121, 121, 121, 0.7);
+}
+
+/* Smooth theme transitions */
+.transition-colors {
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+/* Monaco editor should not have color transitions */
+.monaco-editor,
+.monaco-editor * {
+  transition: none !important;
+}
+
+input:focus {
+  caret-color: inherit;
+}
+
+/* Remove input defaults */
+input[type="text"] {
+  background: transparent;
+  border: none;
+  outline: none;
+}

@@ -1,0 +1,65 @@
+# render.yaml — Render Blueprint
+# Deploy both the backend (Docker) and frontend (Static Site) in one click.
+#
+# Usage:
+#   1. Push this repo to GitHub
+#   2. Go to https://dashboard.render.com/blueprints
+#   3. Click "New Blueprint Instance" → connect this repo
+#   4. Render reads this file and creates both services automatically
+#
+# Docs: https://docs.render.com/blueprint-spec
+
+services:
+  # ── Backend: Flask + Flex + GCC (Docker) ─────────────────────────────────
+  - type: web
+    name: lex-studio-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: LEX_EXEC_TIMEOUT
+        value: "10"
+      - key: LEX_COMPILE_TIMEOUT
+        value: "15"
+      - key: LEX_MEMORY_LIMIT_MB
+        value: "128"
+      - key: LEX_MAX_CODE_SIZE
+        value: "65536"
+      - key: LEX_MAX_INPUT_SIZE
+        value: "65536"
+      - key: LEX_TEMP_DIR
+        value: "/tmp/lex-workspaces"
+
+  # ── Frontend: Vite Static Site ───────────────────────────────────────────
+  - type: web
+    name: lex-studio
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    plan: starter
+    region: oregon
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: lex-studio-api
+          type: web
+          property: hostport
+        # Render resolves this to https://lex-studio-api.onrender.com

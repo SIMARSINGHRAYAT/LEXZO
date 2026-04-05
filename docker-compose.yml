@@ -1,0 +1,51 @@
+# Lex Studio — Docker Compose
+# Runs both the Flask backend (with flex/gcc) and the Vite frontend.
+#
+# Usage:
+#   docker compose up --build          # dev (both services)
+#   docker compose up --build backend  # backend only
+#
+# Production:
+#   docker compose -f docker-compose.yml up -d
+
+services:
+  # ── Backend (Flask + Flex + GCC) ────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lex-studio-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_DEBUG=0
+      - PORT=5000
+      - LEX_EXEC_TIMEOUT=10
+      - LEX_COMPILE_TIMEOUT=15
+      - LEX_MEMORY_LIMIT_MB=128
+      - LEX_MAX_CODE_SIZE=65536
+      - LEX_MAX_INPUT_SIZE=65536
+    # Security: drop capabilities, read-only root, limit resources
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp/lex-workspaces:size=64M,mode=1777
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    restart: unless-stopped
+
+  # ── Frontend (Vite dev server / static build) ──────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: lex-studio-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
