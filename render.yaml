@@ -44,7 +44,6 @@ services:
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     plan: starter
-    region: oregon
     headers:
       - path: /*
         name: X-Frame-Options
