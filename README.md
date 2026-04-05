@@ -1,6 +1,6 @@
 # Lex Studio
 
-A VS Code–style web IDE for writing, compiling, and running **Lex (Flex)** programs — entirely in the browser or with a real Flex/GCC backend.
+## A VS Code–style web IDE for writing, compiling, and running **Lex (Flex)** programs — entirely in the browser or with a real Flex/GCC backend.
 
 ![React](https://img.shields.io/badge/React-19-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
