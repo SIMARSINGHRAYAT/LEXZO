@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import { LexFile, TerminalLine, EditorTab } from './types';
 import { LexInterpreter } from './utils/lexer';
 import { runLexOnServer, checkBackendHealth } from './api';
+import WelcomePage from './WelcomePage';
 
 /* ═══════════════════════════════════════════════════
    Constants
@@ -387,6 +388,9 @@ function App() {
   const [theme, setTheme] = useState<Theme>(() =>
     (localStorage.getItem(THEME_KEY) as Theme) || 'dark'
   );
+  const [showWelcome, setShowWelcome] = useState(() => {
+    return !sessionStorage.getItem('lex-studio-welcomed');
+  });
   const [files, setFiles] = useState<LexFile[]>([]);
   const [tabs, setTabs] = useState<EditorTab[]>([]);
   const [activeTab, setActiveTab] = useState<string | null>(null);
@@ -421,6 +425,11 @@ function App() {
   activeTabRef.current = activeTab;
 
   const isDark = theme === 'dark';
+
+  const dismissWelcome = useCallback(() => {
+    sessionStorage.setItem('lex-studio-welcomed', '1');
+    setShowWelcome(false);
+  }, []);
 
   /* ── Helpers ── */
   const addLine = useCallback((content: string, type: TerminalLine['type'] = 'output') => {
@@ -458,8 +467,10 @@ function App() {
       }
     };
     init();
-    addLine('Lex Studio IDE v1.0 — initialized', 'info');
-    addLine('Type "help" for available commands', 'info');
+    addLine('╔══════════════════════════════════════╗', 'info');
+    addLine('║     Lex Studio v1.0 — Ready          ║', 'info');
+    addLine('║     Type "help" for commands          ║', 'info');
+    addLine('╚══════════════════════════════════════╝', 'info');
   }, [addLine]);
 
   // Persist theme
@@ -1130,6 +1141,9 @@ function App() {
       }`}
       style={{ fontFamily: "'Segoe UI', -apple-system, sans-serif" }}
     >
+      {/* ── Welcome Page ── */}
+      {showWelcome && <WelcomePage isDark={isDark} onEnter={dismissWelcome} />}
+
       {/* ── Title Bar ── */}
       <div className={`h-9 flex items-center justify-between px-4 shrink-0 ${
         isDark ? 'bg-[#323233] border-[#3c3c3c]' : 'bg-[#dddddd] border-[#cccccc]'
@@ -1333,16 +1347,26 @@ function App() {
               <div className={`h-full flex flex-col items-center justify-center ${
                 isDark ? 'bg-[#1e1e1e] text-[#858585]' : 'bg-white text-[#aaaaaa]'
               }`}>
-                <svg className="w-16 h-16 mb-4 opacity-40" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M13.5 2L3 14h6.5L10 22l10.5-12H14L13.5 2z" />
-                </svg>
-                <p className="text-lg mb-1">Lex Studio</p>
-                <p className="text-sm mb-6 opacity-70">Open a file from the explorer or terminal</p>
-                <div className={`text-sm space-y-1 font-mono opacity-50`}>
-                  <p>$ new scanner.l</p>
-                  <p>$ lex scanner.l</p>
-                  <p>$ gcc lex.yy.c -o scanner</p>
-                  <p>$ ./scanner</p>
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 blur-2xl opacity-20 bg-[#007acc] rounded-full scale-150" />
+                  <svg className="relative w-20 h-20 opacity-30" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13.5 2L3 14h6.5L10 22l10.5-12H14L13.5 2z" />
+                  </svg>
+                </div>
+                <p className="text-xl font-semibold mb-1 opacity-60">Lex Studio</p>
+                <p className="text-sm mb-8 opacity-40">Select a file or create one to start editing</p>
+                <div className={`rounded-lg p-4 text-xs space-y-1.5 font-mono opacity-40 ${
+                  isDark ? 'bg-[#252526]' : 'bg-[#f5f5f5]'
+                }`}>
+                  <p><span className={isDark ? 'text-[#4ec9b0]' : 'text-[#22863a]'}>$</span> new scanner.l</p>
+                  <p><span className={isDark ? 'text-[#4ec9b0]' : 'text-[#22863a]'}>$</span> lex scanner.l</p>
+                  <p><span className={isDark ? 'text-[#4ec9b0]' : 'text-[#22863a]'}>$</span> gcc lex.yy.c -o scanner</p>
+                  <p><span className={isDark ? 'text-[#4ec9b0]' : 'text-[#22863a]'}>$</span> ./scanner</p>
+                </div>
+                <div className="flex gap-6 mt-8 text-[11px] opacity-30">
+                  <span>Ctrl+B &mdash; Sidebar</span>
+                  <span>Ctrl+` &mdash; Terminal</span>
+                  <span>Ctrl+S &mdash; Save</span>
                 </div>
               </div>
             )}
