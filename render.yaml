@@ -43,7 +43,6 @@ services:
     runtime: static
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
-    plan: starter
     headers:
       - path: /*
         name: X-Frame-Options
